@@ -1,8 +1,6 @@
 import re
 import os
 import nltk
-import urllib
-import operator
 import collections
 from collections import defaultdict, Counter
 from nltk.probability import FreqDist
@@ -15,7 +13,7 @@ import string
 
 
 #READ TEXT FILE
-file = open("C:\Users\sk03732\Desktop\Text Analytics\speech4.txt" , "r")
+file = open("location/file_name" , "r")
 data = file.read()
 
 #TASK NAME: PARSE SENTENCE AND TOTAL SENTENCE NUMBER
@@ -24,20 +22,12 @@ data = file.read()
 sent_tok = sent_tokenize(data)
 
 print "PARSE SENTENCE"
-print("\n")
-print("-----------------------------------")
-#print "\n-----------\n".join(sent_tok)
-
+print "\n-----------\n".join(sent_tok)
 
 #TOTAL SENTENCE NUMBER
 ns = len(sent_tok)
 
-print("\n")
-print("--------------------------------------------")
 print('Total number of sentences:')
-print(ns)
-print("\n\n")
-print("-----------------------------------")
 
 #TASK NAME: TOKENIZE WORDS AND IDENTIFY PARTS OF SPEECH
 
@@ -48,16 +38,11 @@ for sent in sent_tok:
     wordlist = word_tokenize(sent)
     tokenized_sent.append(wordlist)
 
-print("\n\n")
-print("-----------------------------------")
-#print tokenized_sent
+print (tokenized_sent)
 
 #PARTS OF SPEECH TAGGING
 
 pos_token = [nltk.pos_tag(t) for t in tokenized_sent]
-
-print("\n\n")
-print("-----------------------------------")
 print(pos_token)
 
 #CHUNKING
@@ -81,12 +66,9 @@ for sentence_  in token_sentences:
             t_ = ' '.join(word for word, tag in t_.leaves())
             noun_phrases.append(t_)
 
-			
-print("\n\n")
-print("-----------------------------------")
-print noun_phrases
+print noun_phrases)
 
 
 chunks = [nltk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(s)))
               for s in sent_tok]
-print chunks
+print (chunks)
