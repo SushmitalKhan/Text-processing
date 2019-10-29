@@ -1,0 +1,80 @@
+
+import nltk
+import numpy
+
+#READ DATA
+file = open("location/name" , "r")
+data = file.read()
+
+N =  400
+cluster_threshold = 5 #number between words to consider
+
+def _score_sentences(sentences, important_words):
+	scores = []
+	sentence_idx = -1
+	
+	for s in [nltk.tokenize.word_tokenize(s) for s in sentences]:
+		
+		sentence_idx += 1
+		word_idx = []
+		
+		#FOR EACH WORD IN THE WORD LIST....
+		for w in important_words:
+			try:
+			#COMPUTE AN INDEX FOR WHERE ANY IMPORTANT WORDS OCCUR IN THE SENTENCE
+				word_idx.append(s.index(w))
+			except ValueError, e:
+				pass
+		word_idx.sort()
+			
+		if len(word_idx) == 0: continue
+			
+		clusters = []
+		cluster = [word_idx[0]]
+		i = 1
+			
+		while i < len(word_idx):
+			if word_idx[i] - word_idx[i-1] < cluster_threshold:
+				cluster.append(word_idx[1])
+			else:
+				clusters.append(cluster[:])
+				cluster = [word_idx[i]]
+			i += 1
+		clusters.append(cluster)
+		
+		max_cluster_score = 0
+		for c in clusters:
+			significant_words_in_cluster = len(c)
+			total_words_in_cluster = c[-1] - c[0] + 1
+
+			score = 1.0 * significant_words_in_cluster * significant_words_in_cluster / total_words_in_cluster
+			
+			if score > max_cluster_score:
+				max_cluster_score = score
+		scores.append((sentence_idx,score))
+
+	return scores
+				
+
+def summarize(txt):
+	sentences = [s for s in nltk.tokenize.sent_tokenize(txt)]
+	normalized_sentences = [ s.lower() for s in sentences]
+	
+	words = [w.lower() for sentence in normalized_sentences for w in nltk.tokenize.word_tokenize(sentence)]
+	
+	fdist = nltk.FreqDist(words)
+	
+	top_n_words = [w[0] for w in fdist.items() if w[0] not in nltk.corpus.stopwords.words('english')][:N]
+	
+	scored_sentences = _score_sentences(normalized_sentences, top_n_words)
+	
+	avg = numpy.mean([s[1] for s in scored_sentences])
+	std = numpy.std([s[1] for s in scored_sentences])
+	# print avg
+	# print std
+	mean_scored = [(sent_idx, score) for (sent_idx, score) in scored_sentences if score > avg + 0.5*std]
+	# print mean_scored 
+	
+	return dict(mean_scored_summary=[sentences[idx] for (idx,score) in mean_scored])
+	
+print summarize(data)
