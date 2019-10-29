@@ -1,0 +1,74 @@
+import operator
+import collections
+from collections import defaultdict, Counter
+from nltk.probability import FreqDist
+from nltk.tokenize import sent_tokenize, word_tokenize, RegexpTokenizer
+from nltk import pos_tag
+from nltk import ne_chunk
+from nltk.tree import Tree
+from nltk.chunk import *
+from nltk.chunk.util import *
+from nltk.chunk.regexp import *
+from nltk import Tree
+import string
+
+#READ TEXT FILE
+file = open("file_location\file_name" , "r")
+data = file.read()
+
+#REMOVE STOP WORDS
+stop_words = nltk.corpus.stopwords.words('english') + ['.', ',', '--', '\'s', '?', ')', '(', ':', '\'', '\'re', '"', '-', '}','{',u'-', ';']
+	
+#SENTENCE TOKENIZE
+sentences = nltk.tokenize.sent_tokenize(data)
+#print(sentences)
+
+#WORD TOKENIZE
+words = [w.lower() for sentence in sentences for w in nltk.tokenize.word_tokenize(sentence)]
+print(words)
+
+#LENGTH OF SENTENCE
+ns = len(sentences)
+print(ns)
+
+#TOTAL WORDS
+word_count = len(string.split(data))
+print(word_count)
+
+'''
+OR
+'''
+print(len(words))
+
+#FREQUENCY DISTRIBUTION
+filtered_words = [word for word in words if word not in nltk.corpus.stopwords.words('english')]
+
+'''
+OR
+'''
+
+word_freq = []
+for w in filtered_words:
+	 word_freq.append(filtered_words.count(w))
+
+print ("Frequencies\n"+str(word_freq)+"\n")
+print ("Pairs\n"+str(zip(filtered_words,word_freq)))
+	
+fdist = nltk.FreqDist(words)
+
+#HAPAXES
+num_hapaxes = len(fdist.hapaxes())
+print 't/Nnum_hapaxes:'.ljust(25), num_hapaxes
+
+#TOTAL NUMBER OF UNIQUE WORDS
+num_unique_words = len(fdist.keys())
+print 't\Num_Unique_Words:' .ljust(25), num_unique_words
+
+#TOP 10 UNIQUE WORDS
+most_unique_words = Counter(fdist).most_common()[:-9:-1]
+print 't\Most_Unique_words:'.ljust(25), most_unique_words
+
+
+#TOP 10 FREQUENT WORDS
+my_frequent_words = [w for w in fdist.most_common() if w[0] not in stop_words][:10]
+print '\tMost_Frequent_words:'.ljust(25), my_frequent_words
