@@ -1,0 +1,92 @@
+import re
+import os
+import nltk
+import urllib
+import operator
+import collections
+from collections import defaultdict, Counter
+from nltk.probability import FreqDist
+from nltk.tokenize import sent_tokenize, word_tokenize, RegexpTokenizer
+from nltk.chunk import *
+from nltk.chunk.util import *
+from nltk.chunk.regexp import *
+from nltk import Tree
+import string
+
+
+#READ TEXT FILE
+file = open("C:\Users\sk03732\Desktop\Text Analytics\speech4.txt" , "r")
+data = file.read()
+
+#TASK NAME: PARSE SENTENCE AND TOTAL SENTENCE NUMBER
+
+#PARSE SENTENCE
+sent_tok = sent_tokenize(data)
+
+print "PARSE SENTENCE"
+print("\n")
+print("-----------------------------------")
+#print "\n-----------\n".join(sent_tok)
+
+
+#TOTAL SENTENCE NUMBER
+ns = len(sent_tok)
+
+print("\n")
+print("--------------------------------------------")
+print('Total number of sentences:')
+print(ns)
+print("\n\n")
+print("-----------------------------------")
+
+#TASK NAME: TOKENIZE WORDS AND IDENTIFY PARTS OF SPEECH
+
+#TOKENIZE WORDS
+
+tokenized_sent = []
+for sent in sent_tok:
+    wordlist = word_tokenize(sent)
+    tokenized_sent.append(wordlist)
+
+print("\n\n")
+print("-----------------------------------")
+#print tokenized_sent
+
+#PARTS OF SPEECH TAGGING
+
+pos_token = [nltk.pos_tag(t) for t in tokenized_sent]
+
+print("\n\n")
+print("-----------------------------------")
+print(pos_token)
+
+#CHUNKING
+new_patterns = """
+    NP:{<DT><WP><VBP>*<RB>*<VBN><IN><NN>}
+    {<NN|NNS|NNP|NNPS><IN>*<NN|NNS|NNP|NNPS>+}
+    {<JJ>*<NN|NNS|NNP|NNPS><CC>*<NN|NNS|NNP|NNPS>+}
+    {<JJ>*<NN|NNS|NNP|NNPS>+}
+    """
+	
+np_chunker = nltk.RegexpParser(new_patterns)
+
+token_sentences = [np_chunker.parse(word) for word in pos_token]
+
+noun_phrases = []
+for sentence_  in token_sentences:
+    tree = np_chunker.parse(sentence_)
+    for subtree in tree.subtrees():
+        if subtree.label() == 'NP':
+            t_ = subtree
+            t_ = ' '.join(word for word, tag in t_.leaves())
+            noun_phrases.append(t_)
+
+			
+print("\n\n")
+print("-----------------------------------")
+print noun_phrases
+
+
+chunks = [nltk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(s)))
+              for s in sent_tok]
+print chunks
