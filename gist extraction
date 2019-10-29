@@ -1,0 +1,41 @@
+import nltk
+
+file = open("location/name" , "r")
+data = file.read()
+
+def extract_interact(txt):
+	sentences = nltk.tokenize.sent_tokenize(txt)
+	tokens = [nltk.tokenize.word_tokenize(s) for s in sentences]
+	pos_tagged_tokens = [nltk.pos_tag(t) for t in tokens]
+	
+	entity_interactions = []
+	for sentence in pos_tagged_tokens:
+	
+		all_entity_chunks = []
+		previous_pos = None
+		current_entity_chunk = []
+	
+		for (token, pos) in sentence:
+		
+			if pos == previous_pos and pos.startswith('NN'):
+				current_entity_chunk.append(token)
+			elif pos.startswith('NN'):
+				if current_entity_chunk != []:
+					all_entity_chunks.append((' '.join(current_entity_chunk),pos))
+					
+				current_entity_chunk = [token]
+				
+			previous_pos = pos
+			
+		if len(all_entity_chunks) > 1:
+			entity_interactions.append(all_entity_chunks)
+		else:
+			entity_interactions.append([])
+	
+	assert len(entity_interactions) == len(sentences)
+	
+	return dict(entity_interactions=entity_interactions, sentences=sentences)
+
+for interactions in extract_interact(data)['entity_interactions']:                           
+    print '; '.join([i[0] for i in interactions])                          
+    print
