@@ -1,24 +1,16 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import json
 import pandas as pd
 import os
 from ast import literal_eval
 from collections import defaultdict
 import numpy as np
-
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from nltk import word_tokenize
 
+base_path = 'location'
 
-# In[2]:
+#Merge data files into a big file
 
-
-base_path = 'D:\\autism_data\\2019-05_140 Chars'
 all_data = []
 for filename in os.listdir(base_path):
     if filename.endswith('.json'):
@@ -28,9 +20,7 @@ for filename in os.listdir(base_path):
             print('Loaded {} JSON Objects'.format(len(myjson)))
 
 
-# In[3]:
-
-
+#Extract Retweets only
 my_data_dict = defaultdict(list)
 missing_retweet = []
 for tweet in all_data:
@@ -43,18 +33,19 @@ for tweet in all_data:
             my_data_dict['rt_date'].append(tweet['created_at'])
         except KeyError as e:
             missing_retweet.append(tweet)
-            
+ 
 print('{} Tweets did not contain retweet status but started with RT'.format(len(missing_retweet)))
+
+#Extract date and time of retweets
 tweet_frame = pd.DataFrame(my_data_dict).astype({'oc_date': np.datetime64, 'rt_date': np.datetime64})
+
+#Calculate time difference between first RT - Last RT
 tweet_frame['time_diff'] = tweet_frame[['oc_date', 'rt_date']].apply(lambda 
                                                                      row: row['rt_date'] - row['oc_date'], 
                                                                      axis=1)
 tweet_frame.head()
 
-
-# In[4]:
-
-
+#Sentiment Analysis
 analyser = SentimentIntensityAnalyzer()
 
 def get_sentiment(tweet_t):
@@ -64,23 +55,8 @@ def get_sentiment(tweet_t):
 tweet_frame[['neg', 'neu', 'pos', 'compound']] = tweet_frame.apply(lambda row: pd.Series(get_sentiment(row['text'])), axis=1)
 tweet_frame.head()
 
-
-# In[5]:
-
-
 tweet_frame.groupby(['time_diff']).max()
 
+out_path = 'file location'
 
-# In[9]:
-
-
-out_path = 'D:\autism_data'
-
-tweet_frame.to_csv('D:\\autism_data\\tweet_data.txt', sep=',', index=False)
-
-
-# In[ ]:
-
-
-
-
+tweet_frame.to_csv('file location', sep=',', index=False)
